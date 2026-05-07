@@ -333,18 +333,18 @@ body{
 
 <script>
 (function(){
-const PLAYERS = [
-  {pid:'son',name:'손흥민',short:'손흥민',color:'#F3DFCD',text:'#7A5C3A',team:'LAFC'},
-  {pid:'lee',name:'이강인',short:'이강인',color:'#C1C39D',text:'#4A5030',team:'PSG'},
-  {pid:'kim',name:'김민재',short:'김민재',color:'#FAAF6F',text:'#7A4A10',team:'Bayern'},
-  {pid:'hwang',name:'황희찬',short:'황희찬',color:'#F3B2A6',text:'#7A3A30',team:'Wolves'},
-  {pid:'jeong',name:'이정후',short:'이정후',color:'#BEC8D3',text:'#3A4E5A',team:'Giants'},
-  {pid:'haseong',name:'김하성',short:'김하성',color:'#ACA0BD',text:'#4A3E5A',team:'Braves'},
-  {pid:'bae',name:'배지환',short:'배지환',color:'#E5A082',text:'#6A3018',team:'Mets'},
-  {pid:'hyeseong',name:'김혜성',short:'김혜성',color:'#EDC483',text:'#6A4A10',team:'Dodgers'},
-  {pid:'tot',name:'토트넘',short:'토트넘',color:'#D4C9E8',text:'#4A3A6A',team:'Tottenham'},
-  {pid:'oh',name:'오현규',short:'오현규',color:'#B8D4C8',text:'#2A5040',team:'Besiktas'}
-];
+  const PLAYERS = [
+    {pid:'son',name:'손흥민',short:'손흥민',color:'#F3DFCD',text:'#7A5C3A',team:'LAFC'},
+    {pid:'lee',name:'이강인',short:'이강인',color:'#C1C39D',text:'#4A5030',team:'PSG'},
+    {pid:'kim',name:'김민재',short:'김민재',color:'#FAAF6F',text:'#7A4A10',team:'Bayern'},
+    {pid:'hwang',name:'황희찬',short:'황희찬',color:'#F3B2A6',text:'#7A3A30',team:'Wolves'},
+    {pid:'jeong',name:'이정후',short:'이정후',color:'#BEC8D3',text:'#3A4E5A',team:'Giants'},
+    {pid:'haseong',name:'김하성',short:'김하성',color:'#ACA0BD',text:'#4A3E5A',team:'Braves'},
+    {pid:'bae',name:'배지환',short:'배지환',color:'#E5A082',text:'#6A3018',team:'Mets'},
+    {pid:'hyeseong',name:'김혜성',short:'김혜성',color:'#EDC483',text:'#6A4A10',team:'Dodgers'},
+    {pid:'tot',name:'토트넘',short:'토트넘',color:'#D4C9E8',text:'#4A3A6A',team:'Tottenham'},
+    {pid:'oh',name:'오현규',short:'오현규',color:'#B8D4C8',text:'#2A5040',team:'Besiktas'}
+  ];
 
   const TAG_LABEL = {PREGAME:'경기전',LIVE_WINDOW:'진행중',POST_REVIEW:'리뷰',NORMAL:''};
   const TAG_BG = {PREGAME:'#E8EDD8',LIVE_WINDOW:'#FAE8E5',POST_REVIEW:'#FBF0DD'};
@@ -396,105 +396,88 @@ const PLAYERS = [
   }
 
   function renderFilters(){
-  const fi = document.getElementById('fi');
+    const fi = document.getElementById('fi');
 
-  const allButton =
-    '<button class="pill on" type="button" data-role="all" id="f_all">전체</button>';
+    const allButton = '<button class="pill on" type="button" data-role="all" id="f_all">전체</button>';
 
-  const playerButtons = PLAYERS.map(function(p){
-    return (
-      '<button class="pill on" type="button" data-pid="' + p.pid + '" id="f_' + p.pid + '">' +
-      esc(p.short || p.name) +
-      '</button>'
-    );
-  }).join('');
+    const playerButtons = PLAYERS.map(function(p){
+      return '<button class="pill on" type="button" data-pid="' + p.pid + '" id="f_' + p.pid + '">' + esc(p.short || p.name) + '</button>';
+    }).join('');
 
-  fi.innerHTML = allButton + playerButtons;
+    fi.innerHTML = allButton + playerButtons;
 
-  // 중요: 버튼마다 리스너를 붙이지 않고, 부모에 한 번만 붙임
-  fi.onclick = function(ev){
-    const btn = ev.target.closest('button.pill');
-    if(!btn) return;
+    fi.onclick = function(ev){
+      const btn = ev.target.closest('button.pill');
+      if(!btn) return;
 
-    const role = btn.getAttribute('data-role');
-    const pid = btn.getAttribute('data-pid');
+      const role = btn.getAttribute('data-role');
+      const pid = btn.getAttribute('data-pid');
 
-    if(role === 'all'){
-      toggleAll();
-      return;
+      if(role === 'all'){
+        toggleAll();
+        return;
+      }
+
+      if(pid){
+        tog(pid);
+      }
+    };
+
+    const lg = document.getElementById('lg');
+    lg.innerHTML = PLAYERS.map(function(p){
+      return '<div class="li"><span class="ld" style="background:' + p.color + '"></span>' + esc(p.name) + ' · ' + esc(p.team) + '</div>';
+    }).join('');
+
+    syncFilterButtons();
+  }
+
+  function tog(pid){
+    if(active.has(pid)){
+      active.delete(pid);
+    } else {
+      active.add(pid);
     }
 
-    function tog(pid){
-  if(active.has(pid)){
-    active.delete(pid);
-  } else {
-    active.add(pid);
+    closeTimelineDetail();
+    syncFilterButtons();
+    render();
   }
 
-  closeTimelineDetail();
-  syncFilterButtons();
-  render();
-}
+  function toggleAll(){
+    const shouldSelectAll = active.size < PLAYERS.length;
 
-  const lg = document.getElementById('lg');
-  lg.innerHTML = PLAYERS.map(function(p){
-    return (
-      '<div class="li">' +
-        '<span class="ld" style="background:' + p.color + '"></span>' +
-        esc(p.name) + ' · ' + esc(p.team) +
-      '</div>'
-    );
-  }).join('');
+    if(shouldSelectAll){
+      active = new Set(PLAYERS.map(function(p){ return p.pid; }));
+    } else {
+      active = new Set();
+    }
 
-  syncFilterButtons();
-}
-
-function toggleAll(){
-  const shouldSelectAll = active.size < PLAYERS.length;
-
-  if(shouldSelectAll){
-    active = new Set(PLAYERS.map(function(p){ return p.pid; }));
-  } else {
-    active = new Set();
+    closeTimelineDetail();
+    syncFilterButtons();
+    render();
   }
 
-  closeTimelineDetail();
-  syncFilterButtons();
-  render();
-}
+  function syncFilterButtons(){
+    const allEl = document.getElementById('f_all');
+    const allOn = active.size === PLAYERS.length;
 
-function syncFilterButtons(){
-  const allEl = document.getElementById('f_all');
-  const allOn = active.size === PLAYERS.length;
+    if(allEl){
+      allEl.classList.toggle('on', allOn);
+      allEl.style.background = allOn ? 'var(--md-primary-container)' : 'transparent';
+      allEl.style.color = allOn ? 'var(--md-on-primary-container)' : 'var(--md-text-secondary)';
+    }
 
-  if(allEl){
-    allEl.classList.toggle('on', allOn);
-    allEl.style.background = allOn ? 'var(--md-primary-container)' : 'transparent';
-    allEl.style.color = allOn ? 'var(--md-on-primary-container)' : 'var(--md-text-secondary)';
+    PLAYERS.forEach(function(p){
+      const el = document.getElementById('f_' + p.pid);
+      if(!el) return;
+
+      const on = active.has(p.pid);
+      el.classList.toggle('on', on);
+      el.style.background = on ? p.color : 'transparent';
+      el.style.color = on ? p.text : 'var(--md-text-secondary)';
+    });
   }
 
-  PLAYERS.forEach(function(p){
-    const el = document.getElementById('f_' + p.pid);
-    if(!el) return;
-
-    const on = active.has(p.pid);
-
-    el.classList.toggle('on', on);
-    el.style.background = on ? p.color : 'transparent';
-    el.style.color = on ? p.text : 'var(--md-text-secondary)';
-  });
-}
-
-function updateAllButton(){
-  const allEl = document.getElementById('f_all');
-  if(!allEl) return;
-
-  const allOn = active.size === PLAYERS.length;
-
-  allEl.classList.toggle('on', allOn);
-  allEl.style.background = allOn ? 'var(--md-primary-container)' : 'transparent';
-  allEl.style.color = allOn ? 'var(--md-on-primary-container)' : 'var(--md-text-secondary)';
-}
   function renderCal(){
     const vc = document.getElementById('vc');
     const y = cm.getFullYear();
@@ -538,6 +521,7 @@ function updateAllButton(){
     h += '</div>';
     vc.innerHTML = h;
   }
+
   function renderTL(){
     const vt = document.getElementById('vt');
     const gs = gamesInMonth().slice().sort(function(a,b){
@@ -587,6 +571,7 @@ function updateAllButton(){
     h += '</div>';
     vt.innerHTML = h;
   }
+
   function esc(v){
     return String(v ?? '').replace(/[&<>"']/g,function(c){
       return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
