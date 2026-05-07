@@ -333,18 +333,18 @@ body{
 
 <script>
 (function(){
-  const PLAYERS = [
-    {pid:'son',name:'손흥민',short:'흥민',color:'#F3DFCD',text:'#7A5C3A',team:'LAFC'},
-    {pid:'lee',name:'이강인',short:'강인',color:'#C1C39D',text:'#4A5030',team:'PSG'},
-    {pid:'kim',name:'김민재',short:'민재',color:'#FAAF6F',text:'#7A4A10',team:'Bayern'},
-    {pid:'hwang',name:'황희찬',short:'희찬',color:'#F3B2A6',text:'#7A3A30',team:'Wolves'},
-    {pid:'jeong',name:'이정후',short:'정후',color:'#BEC8D3',text:'#3A4E5A',team:'Giants'},
-    {pid:'haseong',name:'김하성',short:'하성',color:'#ACA0BD',text:'#4A3E5A',team:'Braves'},
-    {pid:'bae',name:'배지환',short:'지환',color:'#E5A082',text:'#6A3018',team:'Mets'},
-    {pid:'hyeseong',name:'김혜성',short:'혜성',color:'#EDC483',text:'#6A4A10',team:'Dodgers'},
-    {pid:'tot',name:'토트넘',short:'TOT',color:'#D4C9E8',text:'#4A3A6A',team:'Tottenham'},
-    {pid:'oh',name:'오현규',short:'현규',color:'#B8D4C8',text:'#2A5040',team:'Besiktas'}
-  ];
+const PLAYERS = [
+  {pid:'son',name:'손흥민',short:'손흥민',color:'#F3DFCD',text:'#7A5C3A',team:'LAFC'},
+  {pid:'lee',name:'이강인',short:'이강인',color:'#C1C39D',text:'#4A5030',team:'PSG'},
+  {pid:'kim',name:'김민재',short:'김민재',color:'#FAAF6F',text:'#7A4A10',team:'Bayern'},
+  {pid:'hwang',name:'황희찬',short:'황희찬',color:'#F3B2A6',text:'#7A3A30',team:'Wolves'},
+  {pid:'jeong',name:'이정후',short:'이정후',color:'#BEC8D3',text:'#3A4E5A',team:'Giants'},
+  {pid:'haseong',name:'김하성',short:'김하성',color:'#ACA0BD',text:'#4A3E5A',team:'Braves'},
+  {pid:'bae',name:'배지환',short:'배지환',color:'#E5A082',text:'#6A3018',team:'Mets'},
+  {pid:'hyeseong',name:'김혜성',short:'김혜성',color:'#EDC483',text:'#6A4A10',team:'Dodgers'},
+  {pid:'tot',name:'토트넘',short:'토트넘',color:'#D4C9E8',text:'#4A3A6A',team:'Tottenham'},
+  {pid:'oh',name:'오현규',short:'오현규',color:'#B8D4C8',text:'#2A5040',team:'Besiktas'}
+];
 
   const TAG_LABEL = {PREGAME:'경기전',LIVE_WINDOW:'진행중',POST_REVIEW:'리뷰',NORMAL:''};
   const TAG_BG = {PREGAME:'#E8EDD8',LIVE_WINDOW:'#FAE8E5',POST_REVIEW:'#FBF0DD'};
@@ -462,7 +462,7 @@ body{
         const tb = tag ? '<span class="tbadge">' + tag + '</span>' : '';
         const title = g.name + ' ' + vs + ' · ' + g.time + ' · ' + g.sport;
 
-        h += '<span class="chip" title="' + escapeAttr(title) + '" style="background:' + p.color + ';color:' + p.text + '">' + esc(g.short) + ' ' + esc(vs) + tb + '</span>';
+        h += '<span class="chip" title="' + escapeAttr(title) + '" style="background:' + p.color + ';color:' + p.text + '">' + esc(p.short || g.name || g.short) + ' ' + esc(vs) + tb + '</span>';
       });
 
       h += '</div>';
@@ -507,7 +507,7 @@ body{
 
         h += '<div class="tl-game" data-game="' + data + '" style="border-left-color:' + p.color + '">';
         h += '<div class="tl-dot" style="background:' + p.color + '"></div>';
-        h += '<div class="tl-name">' + esc(g.short) + '</div>';
+        h += '<div class="tl-name">' + esc(p.short || g.name || g.short) + '</div>';
         h += '<div class="tl-opp">' + esc(vs) + ' · ' + esc(g.sport) + '</div>';
         h += '<div class="tl-times"><div>' + esc(g.time) + '</div>' + localLine + '</div>';
         h += tagHtml;
