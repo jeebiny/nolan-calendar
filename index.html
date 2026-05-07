@@ -399,32 +399,54 @@ const PLAYERS = [
   const fi = document.getElementById('fi');
 
   const allButton =
-    '<button class="pill on" type="button" data-role="all" id="f_all" ' +
-    'style="background:var(--md-primary-container);color:var(--md-on-primary-container)">전체</button>';
+    '<button class="pill on" type="button" data-role="all" id="f_all">전체</button>';
 
   const playerButtons = PLAYERS.map(function(p){
-    return '<button class="pill on" type="button" data-pid="' + p.pid + '" id="f_' + p.pid + '" style="background:' + p.color + ';color:' + p.text + '">' + p.short + '</button>';
+    return (
+      '<button class="pill on" type="button" data-pid="' + p.pid + '" id="f_' + p.pid + '">' +
+      esc(p.short || p.name) +
+      '</button>'
+    );
   }).join('');
 
   fi.innerHTML = allButton + playerButtons;
 
-  const allEl = document.getElementById('f_all');
-  if(allEl){
-    allEl.addEventListener('click', function(){
+  // 중요: 버튼마다 리스너를 붙이지 않고, 부모에 한 번만 붙임
+  fi.onclick = function(ev){
+    const btn = ev.target.closest('button.pill');
+    if(!btn) return;
+
+    const role = btn.getAttribute('data-role');
+    const pid = btn.getAttribute('data-pid');
+
+    if(role === 'all'){
       toggleAll();
-    });
+      return;
+    }
+
+    function tog(pid){
+  if(active.has(pid)){
+    active.delete(pid);
+  } else {
+    active.add(pid);
   }
 
-  fi.querySelectorAll('.pill[data-pid]').forEach(function(el){
-    el.addEventListener('click', function(){
-      tog(el.getAttribute('data-pid'));
-    });
-  });
+  closeTimelineDetail();
+  syncFilterButtons();
+  render();
+}
 
   const lg = document.getElementById('lg');
   lg.innerHTML = PLAYERS.map(function(p){
-    return '<div class="li"><span class="ld" style="background:' + p.color + '"></span>' + p.name + ' · ' + p.team + '</div>';
+    return (
+      '<div class="li">' +
+        '<span class="ld" style="background:' + p.color + '"></span>' +
+        esc(p.name) + ' · ' + esc(p.team) +
+      '</div>'
+    );
   }).join('');
+
+  syncFilterButtons();
 }
 
 function toggleAll(){
@@ -436,19 +458,31 @@ function toggleAll(){
     active = new Set();
   }
 
+  closeTimelineDetail();
+  syncFilterButtons();
+  render();
+}
+
+function syncFilterButtons(){
+  const allEl = document.getElementById('f_all');
+  const allOn = active.size === PLAYERS.length;
+
+  if(allEl){
+    allEl.classList.toggle('on', allOn);
+    allEl.style.background = allOn ? 'var(--md-primary-container)' : 'transparent';
+    allEl.style.color = allOn ? 'var(--md-on-primary-container)' : 'var(--md-text-secondary)';
+  }
+
   PLAYERS.forEach(function(p){
     const el = document.getElementById('f_' + p.pid);
     if(!el) return;
 
     const on = active.has(p.pid);
+
     el.classList.toggle('on', on);
     el.style.background = on ? p.color : 'transparent';
     el.style.color = on ? p.text : 'var(--md-text-secondary)';
   });
-
-  updateAllButton();
-  closeTimelineDetail();
-  render();
 }
 
 function updateAllButton(){
