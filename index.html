@@ -394,40 +394,73 @@ const PLAYERS = [
     closeTimelineDetail();
     render();
   }
+
   function renderFilters(){
-    const fi = document.getElementById('fi');
-    fi.innerHTML = PLAYERS.map(function(p){
-      return '<button class="pill on" type="button" data-pid="' + p.pid + '" id="f_' + p.pid + '" style="background:' + p.color + ';color:' + p.text + '">' + p.short + '</button>';
-    }).join('');
+  const fi = document.getElementById('fi');
 
-    fi.querySelectorAll('.pill').forEach(function(el){
-      el.addEventListener('click', function(){
-        tog(el.getAttribute('data-pid'));
-      });
+  const allButton =
+    '<button class="pill on" type="button" data-role="all" id="f_all" ' +
+    'style="background:var(--md-primary-container);color:var(--md-on-primary-container)">전체</button>';
+
+  const playerButtons = PLAYERS.map(function(p){
+    return '<button class="pill on" type="button" data-pid="' + p.pid + '" id="f_' + p.pid + '" style="background:' + p.color + ';color:' + p.text + '">' + p.short + '</button>';
+  }).join('');
+
+  fi.innerHTML = allButton + playerButtons;
+
+  const allEl = document.getElementById('f_all');
+  if(allEl){
+    allEl.addEventListener('click', function(){
+      toggleAll();
     });
-
-    const lg = document.getElementById('lg');
-    lg.innerHTML = PLAYERS.map(function(p){
-      return '<div class="li"><span class="ld" style="background:' + p.color + '"></span>' + p.name + ' · ' + p.team + '</div>';
-    }).join('');
   }
-  function tog(pid){
-    if(active.has(pid)) active.delete(pid);
-    else active.add(pid);
 
-    const p = player(pid);
-    const el = document.getElementById('f_' + pid);
+  fi.querySelectorAll('.pill[data-pid]').forEach(function(el){
+    el.addEventListener('click', function(){
+      tog(el.getAttribute('data-pid'));
+    });
+  });
 
-    if(el){
-      const on = active.has(pid);
-      el.classList.toggle('on', on);
-      el.style.background = on ? p.color : 'transparent';
-      el.style.color = on ? p.text : 'var(--md-text-secondary)';
-    }
+  const lg = document.getElementById('lg');
+  lg.innerHTML = PLAYERS.map(function(p){
+    return '<div class="li"><span class="ld" style="background:' + p.color + '"></span>' + p.name + ' · ' + p.team + '</div>';
+  }).join('');
+}
 
-    closeTimelineDetail();
-    render();
+function toggleAll(){
+  const shouldSelectAll = active.size < PLAYERS.length;
+
+  if(shouldSelectAll){
+    active = new Set(PLAYERS.map(function(p){ return p.pid; }));
+  } else {
+    active = new Set();
   }
+
+  PLAYERS.forEach(function(p){
+    const el = document.getElementById('f_' + p.pid);
+    if(!el) return;
+
+    const on = active.has(p.pid);
+    el.classList.toggle('on', on);
+    el.style.background = on ? p.color : 'transparent';
+    el.style.color = on ? p.text : 'var(--md-text-secondary)';
+  });
+
+  updateAllButton();
+  closeTimelineDetail();
+  render();
+}
+
+function updateAllButton(){
+  const allEl = document.getElementById('f_all');
+  if(!allEl) return;
+
+  const allOn = active.size === PLAYERS.length;
+
+  allEl.classList.toggle('on', allOn);
+  allEl.style.background = allOn ? 'var(--md-primary-container)' : 'transparent';
+  allEl.style.color = allOn ? 'var(--md-on-primary-container)' : 'var(--md-text-secondary)';
+}
   function renderCal(){
     const vc = document.getElementById('vc');
     const y = cm.getFullYear();
